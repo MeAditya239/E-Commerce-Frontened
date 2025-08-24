@@ -63,21 +63,15 @@ export default function Product() {
       const query = searchParamms.toString();
       navigate({ search: `?${query}` });
     }
-
-
   };
 
+  const handleRadioFilterChange = (e, sectionId) => {
+    const searchParamms = new URLSearchParams(location.search);
 
-
-  const handleRadioFilterChange= (e,  sectionId) =>{
-    const searchParamms =new URLSearchParams(location.search)
-
-    searchParamms.set(sectionId,e.target.vale)
+    searchParamms.set(sectionId, e.target.vale);
     const query = searchParamms.toString();
-    navigate({search:`?${query}`})
-
-
-  }
+    navigate({ search: `?${query}` });
+  };
 
   return (
     <div className="bg-white">
@@ -268,7 +262,6 @@ export default function Product() {
                       as="div"
                       className="border-b border-gray-200 py-6"
                     >
-                      
                       <FormControl>
                         <h3 className="-my-3 flow-root">
                           <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
@@ -293,7 +286,6 @@ export default function Product() {
                               />
                             </span>
                           </DisclosureButton>
-                          
                         </h3>
                         <DisclosurePanel className="pt-6">
                           <div className="space-y-4">

@@ -3,6 +3,7 @@ import { Box, Button, Grid, LinearProgress, Rating } from "@mui/material";
 import ProductReviewCard from "./ProductReviewCard";
 import HomeSectionCard from "../HomeSectionCard/HomeSectionCard";
 import { mens_kurta } from "../../../Data/mens_kurta";
+import { useNavigate } from "react-router-dom";
 
 const product = {
   name: "Basic Tee 6-Pack",
@@ -66,11 +67,26 @@ const product = {
 
 const reviews = { href: "#", average: 4, totalCount: 117 };
 
+
+
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function ProductDetails() {
+  const navigate = useNavigate();
+  const handleAddtoCart =() =>{
+    navigate("/cart")
+
+  }
+
+
+
+
+
+
+
   return (
     <div className="bg-white lg-px-20">
       <div className="pt-6">
@@ -232,6 +248,7 @@ export default function ProductDetails() {
 
               <div className="flex justify-center mt-4">
                 <Button
+                onClick={handleAddtoCart}
                   variant="contained"
                   color="error"
                   size="medium"

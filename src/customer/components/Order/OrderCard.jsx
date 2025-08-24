@@ -5,7 +5,7 @@ const OrderCard = () => {
   const navigate = useNavigate();
   return (
     <div
-      //onClick={() => navigate(/account/order/${5})}
+      onClick={() => navigate(`/account/order/${5}`)}
       className="shadow hover:shadow-gray-800 p-5 rounded-lg border border-gray-300 mb-4 w-full"
     >
       <div className="flex justify-between items-center w-full">
