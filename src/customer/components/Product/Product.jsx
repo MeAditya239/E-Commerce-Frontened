@@ -1,13 +1,15 @@
 "use client";
 import { mens_kurta } from "../../../Data/mens_kurta";
 import { filters, singleFilter } from "./FilterData";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import Checkbox from "@mui/material/Checkbox";
+
 import {
   Dialog,
   DialogBackdrop,
@@ -29,7 +31,7 @@ import {
   Squares2X2Icon,
 } from "@heroicons/react/20/solid";
 import ProductCard from "./ProductCard";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const sortOptions = [
   { name: "Price: Low to High", href: "#", current: false },
@@ -45,6 +47,24 @@ export default function Product() {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const param = useParams();
+
+  const decodedQueryString = decodeURIComponent(location.search);
+  const searchParamms = new URLSearchParams(decodedQueryString);
+  const colorValue = searchParamms.get("color");
+  const sizeValue = searchParamms.get("size");
+  const priceValue = searchParamms.get("price");
+  const discount = searchParamms.get("discount");
+  const sortValue = searchParamms.get("sort");
+  const pageNumber = searchParamms.get("page");
+  const stock = searchParamms.get("stock");
+
+
+
+
+
+
+
 
   const handleFilter = (value, sectionid) => {
     const searchParamms = new URLSearchParams(location.search);
@@ -53,6 +73,7 @@ export default function Product() {
       filterValue = filterValue[0].split(",").filter((item) => item !== value);
       if (filterValue.length === 0) {
         searchParamms.delete(sectionid);
+
       }
     } else {
       filterValue.push(value);
@@ -68,10 +89,26 @@ export default function Product() {
   const handleRadioFilterChange = (e, sectionId) => {
     const searchParamms = new URLSearchParams(location.search);
 
-    searchParamms.set(sectionId, e.target.vale);
+    searchParamms.set(sectionId, e.target.value);
     const query = searchParamms.toString();
     navigate({ search: `?${query}` });
   };
+
+  useEffect( () => {
+
+    const [minPrice, maxPrice] = priceValue === null ? [0,0] : priceValue.split("-").map(Number);
+
+  }, [param.levelThree,
+    colorValue,
+    sizeValue,
+    priceValue,
+    discount,
+    sortValue,
+    pageNumber,
+    stock
+
+  ])
+
 
   return (
     <div className="bg-white">
@@ -256,61 +293,83 @@ export default function Product() {
                 </div>
 
                 <form className="hidden lg:block">
-                  {singleFilter.map((section) => (
-                    <Disclosure
-                      key={section.id}
-                      as="div"
-                      className="border-b border-gray-200 py-6"
-                    >
-                      <FormControl>
-                        <h3 className="-my-3 flow-root">
-                          <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-                            {/* <span className="font-medium text-gray-900">
-                          
-                        </span> */}
-                            <FormLabel
-                              sx={{ color: "black" }}
-                              className="text-gray-900"
-                              id="demo-radio-buttons-group-label"
-                            >
-                              {section.name}
-                            </FormLabel>
-                            <span className="ml-6 flex items-center">
-                              <PlusIcon
-                                aria-hidden="true"
-                                className="size-5 group-data-[open]:hidden"
-                              />
-                              <MinusIcon
-                                aria-hidden="true"
-                                className="size-5 hidden group-data-[open]:block"
-                              />
-                            </span>
-                          </DisclosureButton>
-                        </h3>
-                        <DisclosurePanel className="pt-6">
-                          <div className="space-y-4">
-                            <RadioGroup
-                              aria-labelledby="demo-radio-buttons-group-label"
-                              name={`${section.id}-options`}
-                            >
-                              {section.options.map((option, optionIdx) => (
-                                <FormControlLabel
-                                  key={option.value}
-                                  value={option.value}
-                                  control={<Radio />}
-                                  label={option.label}
-                                  onChange={() =>
-                                    handleFilter(option.value, section.id)
-                                  }
-                                />
-                              ))}
-                            </RadioGroup>
-                          </div>
-                        </DisclosurePanel>
-                      </FormControl>
-                    </Disclosure>
-                  ))}
-                </form>
+  {singleFilter.map((section) => (
+    <Disclosure
+      key={section.id}
+      as="div"
+      className="border-b border-gray-200 py-6"
+    >
+      <FormControl>
+        <h3 className="-my-3 flow-root">
+          <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+            <FormLabel
+              sx={{ color: "black" }}
+              className="text-gray-900"
+              id="demo-radio-buttons-group-label"
+            >
+              {section.name}
+            </FormLabel>
+            <span className="ml-6 flex items-center">
+              <PlusIcon
+                aria-hidden="true"
+                className="size-5 group-data-[open]:hidden"
+              />
+              <MinusIcon
+                aria-hidden="true"
+                className="size-5 hidden group-data-[open]:block"
+              />
+            </span>
+          </DisclosureButton>
+        </h3>
+        <DisclosurePanel className="pt-6">
+          <div className="space-y-4">
+            {section.id === "color" ? (
+              // CHECKBOXES for color
+              <div className="flex flex-col gap-2">
+                {section.options.map((option) => {
+                  const searchParams = new URLSearchParams(location.search);
+                  const selectedColors =
+                    searchParams.get("color")?.split(",") || [];
+                  return (
+                    <FormControlLabel
+                      key={option.value}
+                      control={
+                        <Checkbox
+                          checked={selectedColors.includes(option.value)}
+                          onChange={() => handleFilter(option.value, "color")}
+                        />
+                      }
+                      label={option.label}
+                    />
+                  );
+                })}
+              </div>
+            ) : (
+              // RADIO for all other filters
+              <RadioGroup
+                aria-labelledby="demo-radio-buttons-group-label"
+                name={`${section.id}-options`}
+              >
+                {section.options.map((option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio />}
+                    label={option.label}
+                    onChange={(e) =>
+                      handleRadioFilterChange(e, section.id)
+                    }
+                  />
+                ))}
+              </RadioGroup>
+            )}
+          </div>
+        </DisclosurePanel>
+      </FormControl>
+    </Disclosure>
+  ))}
+</form>
+
               </div>
 
               {/* Product grid */}
