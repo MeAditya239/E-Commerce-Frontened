@@ -26,7 +26,7 @@ const CustomrRouters = () => {
 
         <Route path='/' element={<HomePage/>} ></Route>
         <Route path='/cart' element={<Cart/>} ></Route>
-        <Route path='/:lavelOne/:lavelTwo/:lavelthree' element={ <Product/> } ></Route>
+        <Route path='/:levelOne/:levelTwo/:levelthree' element={ <Product/> } ></Route>
         <Route path='/product/:productid' element={ <ProductDetails/> } ></Route>
         <Route path='/checkout' element={ <Checkout/> }></Route>
         <Route path='/account/order' element={ <Order/> }></Route>

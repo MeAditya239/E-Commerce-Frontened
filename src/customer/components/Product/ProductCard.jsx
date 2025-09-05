@@ -4,18 +4,19 @@ import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  console.log(product);
 
   return (
     <div
       onClick={() => {  console.log("Card clicked!");
-        navigate(`/product/${5}`);  } }
+        navigate(`/product/${product.id || product.title}`);  } }
       className="productCard w-[15rem] m-3 transition-all cursor-pointer"
     >
       <div className="h-[20rem]">
         <img
           className="h-full w-full object-cover object-left-top"
           src={product.imageUrl}
-          alt=""
+          alt={ product.title}
         />
       </div>
 

@@ -9,6 +9,7 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Checkbox from "@mui/material/Checkbox";
+import { findProducts } from ".././../../state/Product/Action";
 
 import {
   Dialog,
@@ -32,6 +33,7 @@ import {
 } from "@heroicons/react/20/solid";
 import ProductCard from "./ProductCard";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 const sortOptions = [
   { name: "Price: Low to High", href: "#", current: false },
@@ -48,6 +50,9 @@ export default function Product() {
   const location = useLocation();
   const navigate = useNavigate();
   const param = useParams();
+  const dispatch = useDispatch();
+
+  const  {products} = useSelector((state) => state.product);
 
   const decodedQueryString = decodeURIComponent(location.search);
   const searchParamms = new URLSearchParams(decodedQueryString);
@@ -59,13 +64,6 @@ export default function Product() {
   const pageNumber = searchParamms.get("page");
   const stock = searchParamms.get("stock");
 
-
-
-
-
-
-
-
   const handleFilter = (value, sectionid) => {
     const searchParamms = new URLSearchParams(location.search);
     let filterValue = searchParamms.getAll(sectionid);
@@ -73,7 +71,6 @@ export default function Product() {
       filterValue = filterValue[0].split(",").filter((item) => item !== value);
       if (filterValue.length === 0) {
         searchParamms.delete(sectionid);
-
       }
     } else {
       filterValue.push(value);
@@ -94,21 +91,36 @@ export default function Product() {
     navigate({ search: `?${query}` });
   };
 
-  useEffect( () => {
+  useEffect(() => {
+    const [minPrice, maxPrice] =
+      priceValue === null ? [0, 0] : priceValue.split("-").map(Number);
 
-    const [minPrice, maxPrice] = priceValue === null ? [0,0] : priceValue.split("-").map(Number);
+    const data = {
+      category: param.levelThree,
+      colors: colorValue ? colorValue.split(",") : [],
+      sizes: sizeValue ? sizeValue.split(",") : [],
+      minPrice,
+      maxPrice,
+      minDiscount: discount || 0,
+      sort: sortValue || "price_low",
+      pageNumber: pageNumber ? pageNumber - 1 : 0, // ✅ FIXED: handle null
+      pageSize: 10,
+      stock: stock,
+    };
 
-  }, [param.levelThree,
+    console.log("Dispatching with filters:", data);
+    
+    dispatch(findProducts(data));
+  }, [
+    param.levelThree,
     colorValue,
     sizeValue,
     priceValue,
     discount,
     sortValue,
     pageNumber,
-    stock
-
-  ])
-
+    stock,
+  ]);
 
   return (
     <div className="bg-white">
@@ -293,91 +305,99 @@ export default function Product() {
                 </div>
 
                 <form className="hidden lg:block">
-  {singleFilter.map((section) => (
-    <Disclosure
-      key={section.id}
-      as="div"
-      className="border-b border-gray-200 py-6"
-    >
-      <FormControl>
-        <h3 className="-my-3 flow-root">
-          <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-            <FormLabel
-              sx={{ color: "black" }}
-              className="text-gray-900"
-              id="demo-radio-buttons-group-label"
-            >
-              {section.name}
-            </FormLabel>
-            <span className="ml-6 flex items-center">
-              <PlusIcon
-                aria-hidden="true"
-                className="size-5 group-data-[open]:hidden"
-              />
-              <MinusIcon
-                aria-hidden="true"
-                className="size-5 hidden group-data-[open]:block"
-              />
-            </span>
-          </DisclosureButton>
-        </h3>
-        <DisclosurePanel className="pt-6">
-          <div className="space-y-4">
-            {section.id === "color" ? (
-              // CHECKBOXES for color
-              <div className="flex flex-col gap-2">
-                {section.options.map((option) => {
-                  const searchParams = new URLSearchParams(location.search);
-                  const selectedColors =
-                    searchParams.get("color")?.split(",") || [];
-                  return (
-                    <FormControlLabel
-                      key={option.value}
-                      control={
-                        <Checkbox
-                          checked={selectedColors.includes(option.value)}
-                          onChange={() => handleFilter(option.value, "color")}
-                        />
-                      }
-                      label={option.label}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              // RADIO for all other filters
-              <RadioGroup
-                aria-labelledby="demo-radio-buttons-group-label"
-                name={`${section.id}-options`}
-              >
-                {section.options.map((option) => (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio />}
-                    label={option.label}
-                    onChange={(e) =>
-                      handleRadioFilterChange(e, section.id)
-                    }
-                  />
-                ))}
-              </RadioGroup>
-            )}
-          </div>
-        </DisclosurePanel>
-      </FormControl>
-    </Disclosure>
-  ))}
-</form>
-
+                  {singleFilter.map((section) => (
+                    <Disclosure
+                      key={section.id}
+                      as="div"
+                      className="border-b border-gray-200 py-6"
+                    >
+                      <FormControl>
+                        <h3 className="-my-3 flow-root">
+                          <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                            <FormLabel
+                              sx={{ color: "black" }}
+                              className="text-gray-900"
+                              id="demo-radio-buttons-group-label"
+                            >
+                              {section.name}
+                            </FormLabel>
+                            <span className="ml-6 flex items-center">
+                              <PlusIcon
+                                aria-hidden="true"
+                                className="size-5 group-data-[open]:hidden"
+                              />
+                              <MinusIcon
+                                aria-hidden="true"
+                                className="size-5 hidden group-data-[open]:block"
+                              />
+                            </span>
+                          </DisclosureButton>
+                        </h3>
+                        <DisclosurePanel className="pt-6">
+                          <div className="space-y-4">
+                            {section.id === "color" ? (
+                              // CHECKBOXES for color
+                              <div className="flex flex-col gap-2">
+                                {section.options.map((option) => {
+                                  const searchParams = new URLSearchParams(
+                                    location.search
+                                  );
+                                  const selectedColors =
+                                    searchParams.get("color")?.split(",") || [];
+                                  return (
+                                    <FormControlLabel
+                                      key={option.value}
+                                      control={
+                                        <Checkbox
+                                          checked={selectedColors.includes(
+                                            option.value
+                                          )}
+                                          onChange={() =>
+                                            handleFilter(option.value, "color")
+                                          }
+                                        />
+                                      }
+                                      label={option.label}
+                                    />
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              // RADIO for all other filters
+                              <RadioGroup
+                                aria-labelledby="demo-radio-buttons-group-label"
+                                name={`${section.id}-options`}
+                              >
+                                {section.options.map((option) => (
+                                  <FormControlLabel
+                                    key={option.value}
+                                    value={option.value}
+                                    control={<Radio />}
+                                    label={option.label}
+                                    onChange={(e) =>
+                                      handleRadioFilterChange(e, section.id)
+                                    }
+                                  />
+                                ))}
+                              </RadioGroup>
+                            )}
+                          </div>
+                        </DisclosurePanel>
+                      </FormControl>
+                    </Disclosure>
+                  ))}
+                </form>
               </div>
 
               {/* Product grid */}
               <div className="lg:col-span-4 w-full">
                 <div className="flex flex-wrap justify-center bg-white py-5">
-                  {mens_kurta.map((item) => (
-                    <ProductCard product={item} />
-                  ))}
+                  {console.log(products.products?.content)}
+                  {products?.content?.map((item, index) => {
+                    console.log("Product item:", item);
+                    return <ProductCard key={index} product={item} />;
+                  })
+                  } 
                 </div>
               </div>
             </div>
