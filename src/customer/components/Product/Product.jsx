@@ -10,6 +10,7 @@ import FormLabel from "@mui/material/FormLabel";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Checkbox from "@mui/material/Checkbox";
 import { findProducts } from ".././../../state/Product/Action";
+import Pagination from '@mui/material/Pagination';
 
 import {
   Dialog,
@@ -54,6 +55,10 @@ export default function Product() {
 
   const  {products} = useSelector((state) => state.product);
 
+  console.log("total pages are", products);
+
+
+
   const decodedQueryString = decodeURIComponent(location.search);
   const searchParamms = new URLSearchParams(decodedQueryString);
   const colorValue = searchParamms.get("color");
@@ -63,6 +68,17 @@ export default function Product() {
   const sortValue = searchParamms.get("sort");
   const pageNumber = searchParamms.get("page");
   const stock = searchParamms.get("stock");
+
+
+  const handlePaginationChange =(event, value) => {
+    const searchParamms = new URLSearchParams( location.search);
+    searchParamms.set("page", value);
+    const query = searchParamms.toString();
+    navigate({ search: `?${query}` });
+
+    
+
+  }
 
   const handleFilter = (value, sectionid) => {
     const searchParamms = new URLSearchParams(location.search);
@@ -104,12 +120,12 @@ export default function Product() {
       minDiscount: discount || 0,
       sort: sortValue || "price_low",
       pageNumber: pageNumber ? pageNumber - 1 : 0, // ✅ FIXED: handle null
-      pageSize: 10,
+      pageSize: 5,
       stock: stock,
     };
 
     console.log("Dispatching with filters:", data);
-    
+
     dispatch(findProducts(data));
   }, [
     param.levelThree,
@@ -401,7 +417,15 @@ export default function Product() {
                 </div>
               </div>
             </div>
+          <section className="w-full px-[3.6rem] mx-auto">
+            <div className="px-4 py-5 flex justify-center">
+            <Pagination count={products?.totalPages}  color="secondary" onChange={handlePaginationChange} />
+            </div>
           </section>
+          
+          </section>
+
+
         </main>
       </div>
     </div>
