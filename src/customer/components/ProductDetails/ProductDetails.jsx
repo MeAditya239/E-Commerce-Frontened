@@ -3,9 +3,13 @@ import { Box, Button, Grid, LinearProgress, Rating } from "@mui/material";
 import ProductReviewCard from "./ProductReviewCard";
 import HomeSectionCard from "../HomeSectionCard/HomeSectionCard";
 import { mens_kurta } from "../../../Data/mens_kurta";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { findProductsById } from "../../../state/Product/Action";
+import { useDispatch, useSelector } from "react-redux";
+import { addItemToCart } from "../../../state/Cart/Action";
 
-const product = {
+const fakeProduct = {
   name: "Basic Tee 6-Pack",
   href: "#",
   breadcrumbs: [
@@ -75,16 +79,27 @@ function classNames(...classes) {
 }
 
 export default function ProductDetails() {
+
+  const [ selectedSize, setSelectedSize ] = useState("");
   const navigate = useNavigate();
+  const params = useParams();
+  const dispatch = useDispatch();
+  const {product}= useSelector( store => store.product);
+
   const handleAddtoCart =() =>{
+    const data ={ productId: params.productid, size: selectedSize};
+    console.log( "data _ " , data);
+    dispatch(addItemToCart( data));
     navigate("/cart")
 
   }
 
+  console.log("------", params);
 
-
-
-
+  useEffect( () => {
+    const data = { productId : params.productid };
+    dispatch( findProductsById(data))
+  },[ params.productid ] )
 
 
   return (
@@ -93,7 +108,7 @@ export default function ProductDetails() {
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb">
           <ol className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-            {product.breadcrumbs.map((breadcrumb) => (
+            {fakeProduct.breadcrumbs.map((breadcrumb) => (
               <li key={breadcrumb.id}>
                 <div className="flex items-center">
                   <a
@@ -117,11 +132,11 @@ export default function ProductDetails() {
             ))}
             <li className="text-sm">
               <a
-                href={product.href}
+                href={product?.href}
                 aria-current="page"
                 className="font-medium text-gray-500 hover:text-gray-600"
               >
-                {product.name}
+                {product?.title}
               </a>
             </li>
           </ol>
@@ -132,13 +147,13 @@ export default function ProductDetails() {
           <div className="flex flex-col items-center">
             <div className="overflow-hidden rounded-lg max-w-[30rem] max-h-[35rem]">
               <img
-                alt={product.images[0].alt}
-                src={product.images[0].src}
+                alt={product?.imageUrl}
+                src={product?.imageUrl}
                 className="h-full w-full object-cover object-center"
               />
             </div>
             <div className="flex space-x-4 mt-4">
-              {product.images.map((image, idx) => (
+              {fakeProduct.images.map((image, idx) => (
                 <div
                   key={idx}
                   className="w-20 h-20 overflow-hidden rounded-lg border border-gray-200 cursor-pointer hover:opacity-75"
@@ -157,18 +172,19 @@ export default function ProductDetails() {
           <div className="lg:col-span-1 mx-auto max-w-2xl px-4 pb-16 sm:px-6 lg:max-w-7xl lg:px-8 lg:pb-24">
             <div>
               <h1 className="text-xl font-semibold text-gray-900">
-                UNIVERSAL OUTFIT
+                {" "}
+                {product?.brand}
               </h1>
               <p className="text-lg text-gray-600 pt-1">
-                Casual PUFF sleeves Solid Women white Top
+                {product?.title}
               </p>
             </div>
 
             {/* Price (horizontal) */}
             <div className="mt-4 flex items-center space-x-4">
-              <p className="text-3xl font-bold text-gray-900">₹399</p>
-              <p className="text-lg text-gray-500 line-through">₹245</p>
-              <p className="text-lg font-semibold text-green-700">5% Off</p>
+              <p className="text-3xl font-bold text-gray-900">₹{product?.discountedPrice}</p>
+              <p className="text-lg text-gray-500 line-through">₹{product?.price}</p>
+              <p className="text-lg font-semibold text-green-700">{product?.discountPresent}% Off</p>
             </div>
 
             {/* Reviews */}
@@ -202,20 +218,23 @@ export default function ProductDetails() {
                   </a>
                 </div>
                 <div className="mt-4 grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
-                  {product.sizes.map((size) => (
+                  {fakeProduct.sizes.map((size) => (
                     <label
                       key={size.name}
                       className={classNames(
                         size.inStock
-                          ? "cursor-pointer bg-white text-gray-900 shadow-sm"
+                          ? `cursor-pointer ${selectedSize === size.name ?  "bg-indigo-600 text-white" :"bg-white text-gray-900 shadow-sm"}`
                           : "cursor-not-allowed bg-gray-50 text-gray-200",
-                        "group relative flex items-center justify-center rounded-md border border-black py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6"
+                        "group relative flex items-center justify-center rounded-md border border-black py-3 px-4 text-sm font-medium uppercase  focus:outline-none sm:flex-1 sm:py-6"
                       )}
+                      onClick={() => setSelectedSize(size.name)}
+                      aria-disabled={size.quantity === 0} 
                     >
                       <input
                         type="radio"
                         name="size"
                         value={size.name}
+                        onChange={(e) => setSelectedSize(e.target.value)}
                         className="sr-only"
                         disabled={!size.inStock}
                       />
@@ -261,12 +280,12 @@ export default function ProductDetails() {
 
             {/* Description */} 
             <div className="py-10 border-t border-gray-200 mt-8">
-              <p className="text-base text-gray-900">{product.description}</p>
+              <p className="text-base text-gray-900">{product?.description}</p>
               <h3 className="mt-10 text-sm font-medium text-gray-900">
                 Highlights
               </h3>
               <ul className="list-disc space-y-2 pl-4 text-sm mt-4">
-                {product.highlights.map((highlight) => (
+                {fakeProduct.highlights.map((highlight) => (
                   <li key={highlight} className="text-gray-600">
                     {highlight}
                   </li>
@@ -275,7 +294,7 @@ export default function ProductDetails() {
               <h3 className="mt-10 text-sm font-medium text-gray-900">
                 Details
               </h3>
-              <p className="text-sm text-gray-600 mt-4">{product.details}</p>
+              <p className="text-sm text-gray-600 mt-4">{product?.details}</p>
             </div>
           </div>
         </section>

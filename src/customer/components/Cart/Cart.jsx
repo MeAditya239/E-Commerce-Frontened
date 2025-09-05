@@ -1,16 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CartItem from "./CartItem";
 import { Box, Button, Grid, LinearProgress, Rating } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getCart } from "../../../state/Cart/Action";
+import { store } from "../../../state/store";
 
 const Cart = () => {
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { cart} = useSelector( store => store )    
+
   const handleCheckOut= () =>{
     navigate("/checkout?step=2")
 
   }
 
+  useEffect(() => {
+    dispatch(getCart());
+  }, [dispatch] )
 
 
 
@@ -19,8 +28,9 @@ const Cart = () => {
     <div>
       <div className="lg:grid grid-cols-3 lg:px-16 relative">
         <div className="col-span-2">
-            {[1,2,3,4].map((item)=>   <CartItem/>   )}
-          <CartItem />
+            {cart.cart?.cartItem?.map((item) => <CartItem item={item} />   )}
+            
+          
         </div>
 
         <div className="px-5 sticky top-0 h-[100vh] mt-5 lg:mt-0 ">
@@ -31,12 +41,12 @@ const Cart = () => {
             <div className="space-y-3 font-semibold px-2">
               <div className="flex justify-between pt-3 text-black">
                 <span>Price</span>
-                <span>₹4567</span>
+                <span>₹{ cart.cart?.totalPrice}</span>
               </div>
 
               <div className="flex justify-between pt-3 text-green-600">
                 <span>Discount</span>
-                <span>-₹3147</span>
+                <span>-₹{ cart.cart?.discount}</span>
               </div>
 
               <div className="flex justify-between pt-3 text-green-600">
@@ -46,7 +56,7 @@ const Cart = () => {
 
               <div className="flex justify-between pt-3 font-bold">
                 <span>Total Amount</span>
-                <span className=" text-green-600">₹1278</span>
+                <span className=" text-green-600">₹{ cart.cart?.totalDiscountedPrice}</span>
               </div>
             </div>
 

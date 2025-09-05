@@ -36,9 +36,7 @@ export const cartReducer = (state = initialState, action) => {
         case UPDATE_CART_ITEM_REQUEST:
             return {...state, loading: true, error: null};
         case UPDATE_CART_ITEM_SUCCESS:
-            return {...state, loading: false, cartItems: state.cartItems.map(item =>
-                item.id === action.payload.id ? action.payload : item
-            ), error: null};
+            return {...state, loading: false, error: null};
         
         default: return state;
 }
