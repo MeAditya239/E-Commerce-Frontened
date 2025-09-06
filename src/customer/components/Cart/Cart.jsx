@@ -10,7 +10,7 @@ const Cart = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { cart} = useSelector( store => store )    
+  const { cart} = useSelector( store => store.cart )    
 
   const handleCheckOut= () =>{
     navigate("/checkout?step=2")
@@ -21,14 +21,11 @@ const Cart = () => {
     dispatch(getCart());
   }, [dispatch] )
 
-
-
-
   return (
     <div>
       <div className="lg:grid grid-cols-3 lg:px-16 relative">
         <div className="col-span-2">
-            {cart.cart?.cartItem?.map((item) => <CartItem item={item} />   )}
+            {cart?.cartItem?.sort((a,b) => a.id-b.id).map((item, i) => <CartItem key={i} item={item} />   )}
             
           
         </div>
@@ -41,12 +38,12 @@ const Cart = () => {
             <div className="space-y-3 font-semibold px-2">
               <div className="flex justify-between pt-3 text-black">
                 <span>Price</span>
-                <span>₹{ cart.cart?.totalPrice}</span>
+                <span>₹{ cart?.totalPrice}</span>
               </div>
 
               <div className="flex justify-between pt-3 text-green-600">
                 <span>Discount</span>
-                <span>-₹{ cart.cart?.discount}</span>
+                <span>-₹{ cart?.discount}</span>
               </div>
 
               <div className="flex justify-between pt-3 text-green-600">
@@ -56,7 +53,7 @@ const Cart = () => {
 
               <div className="flex justify-between pt-3 font-bold">
                 <span>Total Amount</span>
-                <span className=" text-green-600">₹{ cart.cart?.totalDiscountedPrice}</span>
+                <span className=" text-green-600">₹{ cart?.totalDiscountedPrice}</span>
               </div>
             </div>
 

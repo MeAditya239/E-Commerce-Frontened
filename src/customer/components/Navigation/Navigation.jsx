@@ -9,12 +9,12 @@ import {
 
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
 import { deepPurple } from "@mui/material/colors";
-import {navigation} from "./navigationData";
+import { navigation } from "./navigationData";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthModal from "../../Auth/AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser, logout } from "../../../state/Auth/Action";
-
+import { getCart } from "../../../state/Cart/Action";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -28,10 +28,9 @@ export default function Navigation() {
   const jwt = localStorage.getItem("jwt");
   const navigate = useNavigate();
   const location = useLocation();
-  const {auth} = useSelector( store => store)
+  const { auth } = useSelector((store) => store);
   const dispatch = useDispatch();
-
-
+  const { cart } = useSelector((store) => store);
 
   const handleUserClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -45,7 +44,6 @@ export default function Navigation() {
   };
   const handleClose = () => {
     setOpenAuthModal(false);
-    
   };
 
   const handleCategoryClick = (category, section, item, close) => {
@@ -54,27 +52,31 @@ export default function Navigation() {
   };
 
   useEffect(() => {
-      dispatch(getUser(jwt))
-    }, [jwt, auth.jwt])
+    if (jwt) {
+      dispatch(getUser(jwt));
+    }
+  }, [jwt, auth.jwt]);
 
   useEffect(() => {
-    if ( auth.user) {
-      handleClose()
+    if (auth.user) {
+      handleClose();
     }
 
-    if(location.pathname==="/login" || location.pathname==="/register"){
-      navigate(-1)
+    if (location.pathname === "/login" || location.pathname === "/register") {
+      navigate(-1);
     }
+  }, [auth.user]);
 
-  }, [auth.user])
+  useEffect(() => {
+    if (jwt) {
+      dispatch(getCart());
+    }
+  }, [dispatch, jwt]);
 
-
-  const handleLogout =()=> {
-    dispatch(logout())
-    handleCloseUserMenu()
-  }
-
- 
+  const handleLogout = () => {
+    dispatch(logout());
+    handleCloseUserMenu();
+  };
 
   return (
     <div className="bg-white pb-10">
@@ -262,14 +264,12 @@ export default function Navigation() {
 
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
-                
-                  <span className="sr-only">Your Company</span>
-                  <img
-                    src="https://res.cloudinary.com/ddkso1wxi/image/upload/v1675919455/Logo/Copy_of_Zosh_Academy_nblljp.png"
-                    alt="Shopwithzosh"
-                    className="h-8 w-8 mr-2"
-                  />
-                
+                <span className="sr-only">Your Company</span>
+                <img
+                  src="https://res.cloudinary.com/ddkso1wxi/image/upload/v1675919455/Logo/Copy_of_Zosh_Academy_nblljp.png"
+                  alt="Shopwithzosh"
+                  className="h-8 w-8 mr-2"
+                />
               </div>
 
               {/* Flyout menus */}
@@ -441,8 +441,8 @@ export default function Navigation() {
                           "aria-labelledby": "basic-button",
                         }}
                       >
-                        <MenuItem >Logout</MenuItem>
-                        <MenuItem onClick={()  => navigate("/account/order")}>
+                        <MenuItem>Profile</MenuItem>
+                        <MenuItem onClick={() => navigate("/account/order")}>
                           My Orders
                         </MenuItem>
                         <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -460,10 +460,9 @@ export default function Navigation() {
 
                 {/*Search */}
                 <div className="flex items-center lg:ml-6">
-                
                   <p className="p-2 text-gray-400 hover:text-gray-500">
                     <span className="sr-only">Search</span>
-                    
+
                     <MagnifyingGlassIcon
                       className="h-6 w-6"
                       aria-hidden="true"
@@ -474,7 +473,7 @@ export default function Navigation() {
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
                   <Button
-                    
+                    onClick={() => navigate("/cart")}
                     className="group -m-2 flex items-center p-2"
                   >
                     <ShoppingBagIcon
@@ -482,7 +481,7 @@ export default function Navigation() {
                       aria-hidden="true"
                     />
                     <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                      2
+                      {cart?.cart?.cartItem?.length || 0}
                     </span>
                     <span className="sr-only">items in cart, view bag</span>
                   </Button>
@@ -493,9 +492,7 @@ export default function Navigation() {
         </nav>
       </header>
 
-
-      <AuthModal handleClose={handleClose} open={openAuthModal}/>
-      
+      <AuthModal handleClose={handleClose} open={openAuthModal} />
     </div>
   );
 }
