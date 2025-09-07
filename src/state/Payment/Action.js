@@ -34,7 +34,7 @@ export const createPayment = (orderId) => async (dispatch) => {
     dispatch({ type: CREATE_PAYMENT_FAILURE, payload: error.message });
   }
 };
-
+  
 // Update Payment Status
 export const updatePayment = (reqData) => async (dispatch) => {
   dispatch({ type: UPDATE_PAYMENT_REQUEST });
