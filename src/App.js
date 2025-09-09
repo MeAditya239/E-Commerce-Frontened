@@ -10,6 +10,7 @@ import Order from "./customer/components/Order/Order.jsx";
 import OrderDetails from "./customer/components/Order/OrderDetails.jsx";
 import { Route, Routes } from "react-router-dom";
 import CustomrRouters from "./Routers/CustomrRouters.jsx";
+import AdminRouters from "./Routers/AdminRouters.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
 
       <Routes>
         <Route path="/*" element={<CustomrRouters />}></Route>
+        <Route path='/admin/*' element={<AdminRouters/>}></Route>
       </Routes>
 
 

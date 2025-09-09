@@ -5,8 +5,14 @@ import {
   FIND_PRODUCT_SUCCESS,
   FIND_PRODUCT_BY_ID_REQUEST,
   FIND_PRODUCT_BY_ID_SUCCESS,
+  CREATE_PRODUCT_FAILURE,
+  CREATE_PRODUCT_REQUEST,
+  CREATE_PRODUCT_SUCCESS,
+  DELETE_PRODUCT_REQUEST,
+  DELETE_PRODUCT_SUCCESS,
+  DELETE_PRODUCT_FAILURE,
 } from "./ActionType";
-import { api } from "../../config/apiConfig.js";
+import { api, API_BASE_URL } from "../../config/apiConfig.js";
 
 export const findProducts = (reqData) => async (dispatch) => {
   dispatch({ type: FIND_PRODUCT_REQUEST });
@@ -31,7 +37,8 @@ export const findProducts = (reqData) => async (dispatch) => {
     if (sizes?.length) queryParams.append("size", sizes.join(","));
     if (minPrice && minPrice > 0) queryParams.append("minPrice", minPrice);
     if (maxPrice && maxPrice > 0) queryParams.append("maxPrice", maxPrice);
-    if (minDiscount && minDiscount > 0) queryParams.append("minDiscount", minDiscount);
+    if (minDiscount && minDiscount > 0)
+      queryParams.append("minDiscount", minDiscount);
     if (category) queryParams.append("category", category);
     if (stock) queryParams.append("stock", stock);
     if (sort) queryParams.append("sort", sort);
@@ -54,10 +61,50 @@ export const findProductsById = (reqData) => async (dispatch) => {
   try {
     const { data } = await api.get(`/api/products/id/${productId}`);
 
-    console.log( "data by id:", data);
+    console.log("data by id:", data);
 
     dispatch({ type: FIND_PRODUCT_BY_ID_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: FIND_PRODUCT_BY_ID_FAILURE, payload: error.message });
+  }
+};
+
+export const createProduct = (product) => async (dispatch) => {
+  try {
+    dispatch({ type: CREATE_PRODUCT_REQUEST });
+
+    const data = await api.post(
+      `${API_BASE_URL}/api/admin/products/`,
+      product
+    );
+
+    console.log("created products:", data);
+
+    dispatch({
+      type: CREATE_PRODUCT_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    dispatch({ type: CREATE_PRODUCT_FAILURE, payload: error.message });
+  }
+};
+
+
+export const deleteProduct = (productId) => async (dispatch) => {
+  try {
+    dispatch({ type: DELETE_PRODUCT_REQUEST });
+
+    const {data} = await api.delete(
+      `${API_BASE_URL}/api/admin/products/${productId}/delete`);
+      
+      console.log("delete Product", data);
+
+    dispatch({
+      type: DELETE_PRODUCT_SUCCESS,
+      payload: data,
+    });
+
+  } catch (error) {
+    dispatch({ type: DELETE_PRODUCT_FAILURE, payload: error.message });
   }
 };

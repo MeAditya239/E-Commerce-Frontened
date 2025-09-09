@@ -1,10 +1,14 @@
-import { FIND_PRODUCT_BY_ID_FAILURE, FIND_PRODUCT_BY_ID_REQUEST, FIND_PRODUCT_BY_ID_SUCCESS, FIND_PRODUCT_FAILURE, FIND_PRODUCT_REQUEST, FIND_PRODUCT_SUCCESS } from "./ActionType";
+import { DELETE_PRODUCT_SUCCESS, FIND_PRODUCT_BY_ID_FAILURE, FIND_PRODUCT_BY_ID_REQUEST, FIND_PRODUCT_BY_ID_SUCCESS, FIND_PRODUCT_FAILURE, FIND_PRODUCT_REQUEST, FIND_PRODUCT_SUCCESS } from "./ActionType";
 
 const initialState = {
-    products: [],
+    products: {
+    content: [],
+    totalPages: 1,
+  },
     product: null,
     loading: false,    
-    error: null
+    error: null,
+    deletedProduct: null,
 }
 
 
@@ -20,6 +24,9 @@ export const customerProductReducer =(state = initialState, action) =>{
 
         case FIND_PRODUCT_BY_ID_SUCCESS:
             return  { ...state, loading: false, product: action.payload, error: null }; 
+
+        case DELETE_PRODUCT_SUCCESS:
+            return { ...state, loading: false, error: null, deletedProduct: action.payload }
 
             case FIND_PRODUCT_FAILURE:
                 case FIND_PRODUCT_BY_ID_FAILURE:
