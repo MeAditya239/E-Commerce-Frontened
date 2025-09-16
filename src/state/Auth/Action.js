@@ -28,7 +28,10 @@ export const register = (userData) => async (dispatch) => {
     console.log("user", user);
     dispatch(registerSuccess(user));
   } catch (error) {
-    dispatch(registerFailure(error.message));
+    dispatch(registerFailure(error.message
+      
+    )
+  );
   }
 };
 
